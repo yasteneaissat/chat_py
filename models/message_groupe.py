@@ -9,9 +9,9 @@ class MessageGroupe(Message):
     Herite de Message et etend sauvegarder() pour gerer le multi-chiffrement.
     """
 
-    def __init__(self, expediteur, texte: str, groupe, ttl_secondes=None):
+    def __init__(self, expediteur, texte: str, groupe, time_ephemere=None):
         super().__init__(expediteur, texte, conv_id=groupe.id,
-                         ttl_secondes=ttl_secondes)
+                         time_ephemere=time_ephemere)
         self.groupe = groupe
         self.versions_chiffrees = {}  # {user_id: bytes}
 
@@ -32,8 +32,8 @@ class MessageGroupe(Message):
         """Insere une ligne par destinataire dans la table messages."""
         from datetime import datetime, timedelta
         expire_at = None
-        if self.ttl_secondes:
-            expire_at = (datetime.now() + timedelta(seconds=self.ttl_secondes)).isoformat()
+        if self.time_ephemere:
+            expire_at = (datetime.now() + timedelta(seconds=self.time_ephemere)).isoformat()
 
         conn = get_connection()
         cur = conn.cursor()

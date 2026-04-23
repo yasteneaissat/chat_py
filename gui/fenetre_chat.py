@@ -13,6 +13,7 @@ class FenetreChat(tk.Tk):
         self.utilisateur = utilisateur
         self.conversation_active = None
         self._convs_data = []
+        self._ephemere_timers = []  # IDs des after() en cours
         self.title(f"Messagerie Securisee - {utilisateur.username}")
         self.geometry("700x500")
         self._construire_ui()
@@ -46,6 +47,9 @@ class FenetreChat(tk.Tk):
         self.entry_msg.bind("<Return>", lambda e: self._envoyer())
         tk.Button(bottom, text="Envoyer",
                   command=self._envoyer).pack(side="right", padx=4)
+        self.mode_ephemere = tk.BooleanVar(value=False)
+        tk.Checkbutton(bottom, text="⏱ Ephemere (180s)",
+                       variable=self.mode_ephemere).pack(side="right", padx=4)
 
         self._charger_conversations()
 
@@ -98,27 +102,62 @@ class FenetreChat(tk.Tk):
     def _afficher_messages(self):
         if not self.conversation_active:
             return
+        # Annuler les decomptes precedents
+        for timer_id in self._ephemere_timers:
+            self.after_cancel(timer_id)
+        self._ephemere_timers.clear()
+
         rows = self.conversation_active.get_messages(self.utilisateur)
         self.zone_messages.config(state="normal")
         self.zone_messages.delete("1.0", tk.END)
         for row in rows:
+            tag = f"msg_{row['id']}"
             try:
                 texte = self.utilisateur._chiffreur.dechiffrer(row["contenu_chiffre"])
                 exp = Utilisateur.get_par_id(row["expediteur_id"])
                 nom = exp.username if exp else "?"
-                self.zone_messages.insert(
-                    tk.END, f"[{row['horodatage']}] {nom}: {texte}\n")
+                ligne = f"[{row['horodatage']}] {nom}: {texte}\n"
+
+                if row["expire_at"]:
+                    from datetime import datetime
+                    expire = datetime.fromisoformat(row["expire_at"])
+                    restant_ms = int((expire - datetime.now()).total_seconds() * 1000)
+                    if restant_ms <= 0:
+                        self.zone_messages.insert(tk.END,
+                            "T trop lent c'est trop tard !\n", tag)
+                    else:
+                        self.zone_messages.insert(tk.END, ligne, tag)
+                        tid = self.after(restant_ms,
+                                         lambda t=tag: self._expirer_message(t))
+                        self._ephemere_timers.append(tid)
+                else:
+                    self.zone_messages.insert(tk.END, ligne, tag)
             except Exception:
-                self.zone_messages.insert(tk.END, "[Message illisible]\n")
+                self.zone_messages.insert(tk.END, "[Message illisible]\n", tag)
         self.zone_messages.config(state="disabled")
         self.zone_messages.see(tk.END)
+
+    def _expirer_message(self, tag: str):
+        """Remplace le texte du message ephemere une fois le delai ecoule."""
+        try:
+            self.zone_messages.config(state="normal")
+            ranges = self.zone_messages.tag_ranges(tag)
+            if ranges:
+                self.zone_messages.delete(ranges[0], ranges[1])
+                self.zone_messages.insert(ranges[0],
+                    "T trop lent c'est trop tard !\n", tag)
+            self.zone_messages.config(state="disabled")
+        except Exception:
+            pass
 
     def _envoyer(self):
         texte = self.entry_msg.get().strip()
         if not texte or not self.conversation_active:
             return
         try:
-            self.conversation_active.envoyer_message(self.utilisateur, texte)
+            time_eph = 180 if self.mode_ephemere.get() else None
+            self.conversation_active.envoyer_message(
+                self.utilisateur, texte, time_ephemere=time_eph)
             self.entry_msg.delete(0, tk.END)
             self._afficher_messages()
         except Exception as e:

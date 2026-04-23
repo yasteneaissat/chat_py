@@ -1,6 +1,10 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 from db.database import get_connection
+
+if TYPE_CHECKING:
+    from models.message import Message
 
 
 class Conversation(ABC):
@@ -11,8 +15,8 @@ class Conversation(ABC):
         self.participants = participants  # liste d'Utilisateur
 
     @abstractmethod
-    def envoyer_message(self, expediteur, texte: str):
-        pass
+    def envoyer_message(self, expediteur, texte: str, time_ephemere=None) -> "Message":
+        ...
 
     def get_messages(self, pour_user) -> list:
         """Recupere les messages destines a un utilisateur dans cette conversation."""

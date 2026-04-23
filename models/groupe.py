@@ -41,9 +41,10 @@ class Groupe(Conversation):
         g.id = row["id"]
         return g
 
-    def envoyer_message(self, expediteur, texte: str) -> MessageGroupe:
+    def envoyer_message(self, expediteur, texte: str, time_ephemere=None) -> MessageGroupe:
         """Chiffre le message pour chaque membre et le sauvegarde."""
-        msg = MessageGroupe(expediteur=expediteur, texte=texte, groupe=self)
+        msg = MessageGroupe(expediteur=expediteur, texte=texte, groupe=self,
+                            time_ephemere=time_ephemere)
         msg.chiffrer_pour_tous()
         msg.sauvegarder()
         return msg

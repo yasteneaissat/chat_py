@@ -39,12 +39,13 @@ class ConvPrivee(Conversation):
             conv._creer_en_db("privee")
         return conv
 
-    def envoyer_message(self, expediteur, texte: str) -> Message:
+    def envoyer_message(self, expediteur, texte: str, time_ephemere=None) -> Message:
         """Chiffre et envoie le message au destinataire."""
         dest = (self.destinataire
                 if expediteur.id == self.expediteur.id
                 else self.expediteur)
-        msg = Message(expediteur=expediteur, texte=texte, conv_id=self.id)
+        msg = Message(expediteur=expediteur, texte=texte, conv_id = self.id,
+                      time_ephemere=time_ephemere)
         msg.chiffrer_pour(dest)
         msg.sauvegarder()
         return msg

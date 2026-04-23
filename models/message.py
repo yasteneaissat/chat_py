@@ -6,8 +6,8 @@ from db.database import get_connection
 class Message:
     """Message chiffre pour un destinataire unique."""
 
-    def __init__(self, expediteur, texte: str, conv_id: int,
-                 ttl_secondes=None):
+    def __init__(self, expediteur, texte: str, conv_id: int | None,
+                 time_ephemere=None):
         self.id = None
         self.expediteur = expediteur
         self.texte_clair = texte
@@ -15,7 +15,7 @@ class Message:
         self.contenu_chiffre = None
         self.dest_id = None
         self.horodatage = None
-        self.ttl_secondes = ttl_secondes
+        self.time_ephemere = time_ephemere
 
     def chiffrer_pour(self, destinataire) -> None:
         """Chiffre le message avec la cle publique du destinataire."""
@@ -27,8 +27,8 @@ class Message:
     def sauvegarder(self) -> None:
         """Insere le message chiffre en base de donnees."""
         expire_at = None
-        if self.ttl_secondes:
-            expire_at = (datetime.now() + timedelta(seconds=self.ttl_secondes)).isoformat()
+        if self.time_ephemere:
+            expire_at = (datetime.now() + timedelta(seconds=self.time_ephemere)).isoformat()
 
         conn = get_connection()
         cur = conn.cursor()

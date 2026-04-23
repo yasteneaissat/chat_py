@@ -13,7 +13,7 @@ class FenetreChat(tk.Tk):
         self.utilisateur = utilisateur
         self.conversation_active = None
         self._convs_data = []
-        self._ephemere_timers = []  # IDs des after() en cours
+        self._ephemere_timers = [] 
         self.title(f"Messagerie Securisee - {utilisateur.username}")
         self.geometry("700x500")
         self._construire_ui()

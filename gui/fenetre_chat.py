@@ -29,6 +29,8 @@ class FenetreChat(tk.Tk):
                   command=self._nouvelle_conv).pack(pady=4, fill="x", padx=4)
         tk.Button(left, text="+ Creer un groupe",
                   command=self._nouveau_groupe).pack(pady=2, fill="x", padx=4)
+        tk.Button(left, text=" Rafraichir",
+                  command=self._charger_conversations).pack(pady=2, fill="x", padx=4)
 
         # Panneau droit : zone de chat
         right = tk.Frame(self)

@@ -1,3 +1,7 @@
+# Trello : 
+https://trello.com/b/GIiRPrZU/projet-transversal-conception-dune-solution-applicative-securisee-en-langage-objet
+
+
 # Messagerie Sécurisée E2EE
 
 ---

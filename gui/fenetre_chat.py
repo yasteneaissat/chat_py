@@ -231,7 +231,7 @@ class FenetreChat(tk.Tk):
                 nom = exp.username if exp else "?"
 
                 if row["expire_at"]:
-                    expire = datetime.fromisoformat(row["expire_at"])
+                    expire = row["expire_at"] if isinstance(row["expire_at"], datetime) else datetime.fromisoformat(str(row["expire_at"]))
                     restant_ms = int((expire - datetime.now()).total_seconds() * 1000)
                     if restant_ms <= 0:
                         self.zone_messages.insert(

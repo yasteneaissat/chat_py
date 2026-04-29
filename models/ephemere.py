@@ -1,11 +1,11 @@
 from __future__ import annotations
 from models.message import Message
 
-DUREE_DEFAUT = 180 
+DUREE_DEFAUT = 30 
 
 
 class MessageEphemere(Message):
-    """Message éphémère : expire après time_ephemere secondes (défaut : 180)."""
+    """Message éphémère : expire après time_ephemere secondes (défaut : 30)."""
 
     def __init__(self, expediteur, texte: str, conv_id: int,
                  time_ephemere: int = DUREE_DEFAUT):

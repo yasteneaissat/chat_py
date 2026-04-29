@@ -41,7 +41,7 @@ class MessageGroupe(Message):
             cur.execute(
                 "INSERT INTO messages "
                 "(conv_id, expediteur_id, dest_id, contenu_chiffre, expire_at) "
-                "VALUES (?, ?, ?, ?, ?)",
+                "VALUES (%s, %s, %s, %s, %s)",
                 (self.groupe.id, self.expediteur.id, dest_id, cipher, expire_at),
             )
         conn.commit()

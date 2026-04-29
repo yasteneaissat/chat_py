@@ -1,8 +1,21 @@
 import tkinter as tk
 from tkinter import messagebox
+from typing import Any
 from models.utilisateur import Utilisateur
 from models.groupe import Groupe
 from db.database import get_connection
+
+BG       = "#1e1e2e"
+CARD     = "#313244"
+ACCENT   = "#89b4fa"
+TEXT     = "#cdd6f4"
+TEXT_DIM = "#6c7086"
+BORDER   = "#45475a"
+
+F_TITLE = ("Segoe UI", 12, "bold")
+F_BODY  = ("Segoe UI", 10)
+F_SMALL = ("Segoe UI", 9)
+F_BTN   = ("Segoe UI", 10, "bold")
 
 
 class FenetreGroupe(tk.Toplevel):
@@ -12,24 +25,48 @@ class FenetreGroupe(tk.Toplevel):
         super().__init__(parent)
         self.utilisateur = utilisateur
         self.title("Creer un groupe")
-        self.geometry("320x280")
+        self.geometry("460x380")
         self.resizable(False, False)
+        self.configure(bg=BG)
+        self.grab_set()
         self._construire_ui()
 
     def _construire_ui(self):
-        tk.Label(self, text="Nom du groupe :").pack(pady=(16, 2))
-        self.entry_nom = tk.Entry(self, width=30)
-        self.entry_nom.pack()
+        tk.Label(self, text="Creer un groupe",
+                 font=F_TITLE, bg=BG, fg=ACCENT).pack(pady=(22, 16))
 
-        tk.Label(self, text="Membres (separes par des virgules) :").pack(pady=(12, 2))
-        self.entry_membres = tk.Entry(self, width=30)
-        self.entry_membres.pack()
-        tk.Label(self,
-                 text="(vous etes automatiquement ajoute)",
-                 fg="gray",
-                 font=("Arial", 8)).pack()
+        card = tk.Frame(self, bg=CARD, padx=22, pady=18)
+        card.pack(padx=24, fill="x")
 
-        tk.Button(self, text="Creer le groupe", command=self._creer).pack(pady=16)
+        tk.Label(card, text="Nom du groupe",
+                 font=F_SMALL, bg=CARD, fg=TEXT_DIM).pack(anchor="w")
+        self.entry_nom = self._entry(card)
+
+        tk.Label(card, text="Membres (separes par des virgules)",
+                 font=F_SMALL, bg=CARD, fg=TEXT_DIM).pack(anchor="w", pady=(12, 0))
+        self.entry_membres = self._entry(card)
+        tk.Label(card, text="Vous etes automatiquement ajoute",
+                 font=("Segoe UI", 8), bg=CARD, fg=TEXT_DIM).pack(
+                     anchor="w", pady=(3, 0))
+
+        btn = tk.Label(self, text="Creer le groupe",
+                       font=F_BTN, bg=ACCENT, fg="#1e1e2e",
+                       cursor="hand2", padx=12, pady=9,
+                       highlightthickness=0, bd=0)
+        btn.pack(pady=18, padx=24, fill="x")
+        btn.bind("<Button-1>", lambda e: self._creer())
+        btn.bind("<Enter>", lambda e: btn.config(bg="#74c7ec"))
+        btn.bind("<Leave>", lambda e: btn.config(bg=ACCENT))
+
+    def _entry(self, parent: tk.Frame) -> tk.Entry:
+        e = tk.Entry(parent, font=F_BODY,
+                     bg="#1e1e2e", fg=TEXT, insertbackground=TEXT,
+                     relief="flat", bd=0,
+                     highlightthickness=1,
+                     highlightbackground=BORDER,
+                     highlightcolor=ACCENT)
+        e.pack(fill="x", ipady=6, pady=(2, 0))
+        return e
 
     def _creer(self):
         nom = self.entry_nom.get().strip()
@@ -45,11 +82,14 @@ class FenetreGroupe(tk.Toplevel):
                 if not username:
                     continue
                 conn = get_connection()
-                row = conn.execute(
+                cur = conn.cursor(dictionary=True)
+                cur.execute(
                     "SELECT id, username, email, cle_publique "
-                    "FROM utilisateurs WHERE username = ?",
+                    "FROM utilisateurs WHERE username = %s",
                     (username,)
-                ).fetchone()
+                )
+                row: Any = cur.fetchone()
+                cur.close()
                 conn.close()
                 if row:
                     u = Utilisateur(row["username"], row["email"])

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 from models.conversation import Conversation
 from models.message import Message
 from db.database import get_connection
@@ -23,13 +24,16 @@ class ConvPrivee(Conversation):
     def charger_ou_creer(cls, expediteur, destinataire) -> ConvPrivee:
         """Retourne la conversation existante entre les deux, ou en cree une."""
         conn = get_connection()
-        row = conn.execute("""
+        cur = conn.cursor(dictionary=True)
+        cur.execute("""
             SELECT c.id FROM conversations c
-            JOIN participants p1 ON p1.conv_id = c.id AND p1.user_id = ?
-            JOIN participants p2 ON p2.conv_id = c.id AND p2.user_id = ?
+            JOIN participants p1 ON p1.conv_id = c.id AND p1.user_id = %s
+            JOIN participants p2 ON p2.conv_id = c.id AND p2.user_id = %s
             WHERE c.type = 'privee'
             LIMIT 1
-        """, (expediteur.id, destinataire.id)).fetchone()
+        """, (expediteur.id, destinataire.id))
+        row: Any = cur.fetchone()
+        cur.close()
         conn.close()
 
         conv = cls(expediteur, destinataire)

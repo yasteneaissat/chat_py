@@ -30,11 +30,12 @@ class Utilisateur:
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO utilisateurs (username, email, mdp_hash, sel, cle_publique) "
-            "VALUES (?, ?, ?, ?, ?)",
+            "VALUES (%s, %s, %s, %s, %s)",
             (self.username, self.email, mdp_hash, sel, self.cle_publique),
         )
         self.id = cur.lastrowid
         conn.commit()
+        cur.close()
         conn.close()
 
     # ── Connexion ────────────────────────────────────────────────────────────
@@ -46,11 +47,14 @@ class Utilisateur:
         Charge la cle privee depuis le disque local en cas de succes.
         """
         conn = get_connection()
-        row = conn.execute(
+        cur = conn.cursor(dictionary=True)
+        cur.execute(
             "SELECT id, email, mdp_hash, sel, cle_publique "
-            "FROM utilisateurs WHERE username = ?",
+            "FROM utilisateurs WHERE username = %s",
             (username,),
-        ).fetchone()
+        )
+        row = cur.fetchone()
+        cur.close()
         conn.close()
 
         if not row:
@@ -71,10 +75,13 @@ class Utilisateur:
     @staticmethod
     def get_par_id(user_id: int):
         conn = get_connection()
-        row = conn.execute(
-            "SELECT id, username, email, cle_publique FROM utilisateurs WHERE id = ?",
+        cur = conn.cursor(dictionary=True)
+        cur.execute(
+            "SELECT id, username, email, cle_publique FROM utilisateurs WHERE id = %s",
             (user_id,),
-        ).fetchone()
+        )
+        row = cur.fetchone()
+        cur.close()
         conn.close()
         if not row:
             return None

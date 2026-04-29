@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 from models.conversation import Conversation
 from models.message_groupe import MessageGroupe
 from db.database import get_connection
@@ -23,16 +24,21 @@ class Groupe(Conversation):
         """Charge un groupe depuis la BDD avec ses participants."""
         from models.utilisateur import Utilisateur
         conn = get_connection()
-        row = conn.execute(
-            "SELECT id, nom FROM conversations WHERE id = ? AND type = 'groupe'",
+        cur = conn.cursor(dictionary=True)
+        cur.execute(
+            "SELECT id, nom FROM conversations WHERE id = %s AND type = 'groupe'",
             (groupe_id,)
-        ).fetchone()
+        )
+        row: Any = cur.fetchone()
         if not row:
+            cur.close()
             conn.close()
             return None
-        membres_rows = conn.execute(
-            "SELECT user_id FROM participants WHERE conv_id = ?", (groupe_id,)
-        ).fetchall()
+        cur.execute(
+            "SELECT user_id FROM participants WHERE conv_id = %s", (groupe_id,)
+        )
+        membres_rows: Any = cur.fetchall()
+        cur.close()
         conn.close()
 
         membres = [Utilisateur.get_par_id(r["user_id"]) for r in membres_rows]

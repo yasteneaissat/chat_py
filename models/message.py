@@ -35,7 +35,7 @@ class Message:
         cur.execute(
             "INSERT INTO messages "
             "(conv_id, expediteur_id, dest_id, contenu_chiffre, expire_at) "
-            "VALUES (?, ?, ?, ?, ?)",
+            "VALUES (%s, %s, %s, %s, %s)",
             (self.conv_id, self.expediteur.id, self.dest_id,
              self.contenu_chiffre, expire_at),
         )

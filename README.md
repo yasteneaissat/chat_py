@@ -44,6 +44,17 @@ Pré-requis : **WAMP** démarré, MySQL accessible sur `localhost:3306` (user `r
 2. Créer une base nommée `messagerie`
 3. Aller dans l'onglet **Importer**
 4. Sélectionner le fichier `.sql` fourni, puis cliquer **Exécuter**
+5. Vérifier paramètre de connexion dans le fichier 'database.py'
+   ```
+   DB_CONFIG = {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "user": "root",
+    "password": "",
+    "database": "messagerie",
+    }
+   ```
+   Les modifiers si besoins.
 
 > Les tables sont également créées automatiquement au premier lancement (`CREATE TABLE IF NOT EXISTS`) si la base `messagerie` existe déjà.
 

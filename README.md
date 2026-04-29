@@ -41,12 +41,6 @@ Pré-requis : **WAMP** démarré, MySQL accessible sur `localhost:3306` (user `r
 3. Aller dans l'onglet **Importer**
 4. Sélectionner le fichier `.sql` fourni, puis cliquer **Exécuter**
 
-**Via la ligne de commande :**
-```bash
-mysql -u root -e "CREATE DATABASE IF NOT EXISTS messagerie;"
-mysql -u root messagerie < messagerie.sql
-```
-
 > Les tables sont également créées automatiquement au premier lancement (`CREATE TABLE IF NOT EXISTS`) si la base `messagerie` existe déjà.
 
 ---

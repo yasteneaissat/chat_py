@@ -1,6 +1,6 @@
 # Messagerie Sécurisée E2EE 🔐
 
-Application de messagerie instantanée avec chiffrement de bout en bout (E2EE), développée en Python dans le cadre d'un projet BTS SIO SLAM.
+Application de messagerie instantanée avec chiffrement de bout en bout (E2EE), développée en Python dans le cadre d'un projet BTS SIO.
 
 ## Fonctionnalités
 
